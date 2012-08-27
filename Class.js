@@ -113,7 +113,7 @@
             
             var instance = new this();
             
-            extend( instance, config );
+            extend( instance, config, true );
             
             return instance;
             
