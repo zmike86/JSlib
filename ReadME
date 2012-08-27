@@ -1,0 +1,16 @@
+
+All the files in the JSlib folder I added is proposed to provide small and lightweight common module to our project.
+At present, all the varibles in the JS files attached to the window object ( which I think is not a good idea and 
+will be changed to a scoped object later, eg: sogo.lib.Class or after I commit my dynamic loader for js files, it would a AMD fitted
+JS library). It is just the beginning.
+ 
+
+ # Author: Leo Zhang
+ # Email: zmike86@126.com 
+ #        zmike86@gmail.com
+ # We are here: http://10.13.207.143/wiki/index.php
+ # Released under the GPL Licenses.
+ #
+ # Date: Mon Aug,26th
+ # Copyright 2012
+ #
