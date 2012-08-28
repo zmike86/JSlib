@@ -28,7 +28,7 @@ define("sogo.lang.Class", [ "sogo.Type", "sogo.lang.Object" ], function( Type, O
     // extend class static properties or methods
     klass.extend = function( mixinObj, force ) {
 
-        force = ( typeof force == 'boolean' ? force : true );
+        force = ( Type(force) == 'boolean' ? force : true );
 		Object.extend( this, mixinObj, force );
 		
 		// callbacks
@@ -41,7 +41,7 @@ define("sogo.lang.Class", [ "sogo.Type", "sogo.lang.Object" ], function( Type, O
     // extend instancial properties or methods
     klass.include = function( mixinObj, force ) {
         
-        force = ( typeof force == 'boolean' ? force : true );
+        force = ( Type(force) == 'boolean' ? force : true );
 		Object.extend( this.prototype, mixinObj, force );
 		
 		// callbacks
@@ -59,11 +59,11 @@ define("sogo.lang.Class", [ "sogo.Type", "sogo.lang.Object" ], function( Type, O
         var parent, config;
         
         if( !!arguments[0] ){
-            if( typeof arguments[0] == 'function' ) {
+            if( Type.isFunction(arguments[0]) ) {
                 parent = arguments[0];
                 config = arguments[1];
             
-            } else if( typeof arguments[0] == 'object' ) {
+            } else if( Type(arguments[0]) == 'object' ) {
                 parent = null;
                 config = arguments[0];                    
             }    
@@ -104,6 +104,10 @@ define("sogo.lang.Class", [ "sogo.Type", "sogo.lang.Object" ], function( Type, O
             uper: function(){
             
                 var func = arguments[0];
+                
+                if(Type(func) == "null")
+                    return;
+                
                 var args = arguments.callee.caller.arguments.length > 1 ? 
                             [].slice.apply(arguments.callee.caller.arguments,[1]) : 
                             arguments.callee.caller.arguments;
