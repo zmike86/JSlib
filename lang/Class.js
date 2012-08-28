@@ -22,31 +22,42 @@
  */
 
 (function(window, undefined){
+ 
+     Object.create = function ( o ) {
+
+        function F() { }
+        F.prototype = o;
+        var f = new F();
+        
+        return f;
+    };  
+        
+    Object.extend = function( target, mixin, force ) {
     
-    var create = function ( o ) {
-            function F() { }
-            F.prototype = o;
-            return new F();
-        };
-    
-    var extend = function( target, mixin, force ) {
         var force = !!force;
+    
         for( var n in mixin ) {       
             if( !!target[n] && !force )
                 continue;               
             target[n] = mixin[n];     
         }        
+    
+    };        
+        
+    
+    var klass = {
+    
+    
+    
     };
-    
-    var klass = function() { };
-    
-    
+        
     // extend class static properties or methods
     klass.extend = function( mixinObj, force ) {
 
         force = ( typeof force == 'boolean' ? force : true );
-		extend( this, mixinObj, force );
+		Object.extend( this, mixinObj, force );
 		
+		// callbacks
 		if( mixinObj.extended ) { 
 		
 		    mixinObj.extended.apply( this, arguments );
@@ -57,8 +68,9 @@
     klass.include = function( mixinObj, force ) {
         
         force = ( typeof force == 'boolean' ? force : true );
-		extend( this.prototype, mixinObj, force );
+		Object.extend( this.prototype, mixinObj, force );
 		
+		// callbacks
 		if( mixinObj.included ) { 
 		
 		    mixinObj.included.apply( this, arguments );
@@ -66,65 +78,96 @@
         
     };    
     
-    var inherit = {
-        create:function() {
-        
+    
+    klass.create = function() {
+            
+            // get the superClass and instancial properties or methods
             var parent, config;
             
             if( !!arguments[0] ){
-                if( typeof arguments[0] == 'function' )
+                if( typeof arguments[0] == 'function' ) {
                     parent = arguments[0];
-                if( typeof arguments[0] == 'object' )
-                    config = arguments[0];    
+                    config = arguments[1];
+                
+                } else if( typeof arguments[0] == 'object' ) {
+                    parent = null;
+                    config = arguments[0];                    
+                }    
             }
         
-            var F;
-            var _proto = create(klass.prototype);
+            var F = function() {            
+                    // instantiate invoke use the config object
+                    this.initialize.apply( this, arguments );                              
+                }, 
+                _proto = {};
             
             if(!!parent) {
-            
-                extend( _proto, parent.prototype, true );
-                F = function() {            
-                    parent.apply( F, arguments );           
-                };
+                
+                // prototypal inheritence
+                _proto = Object.create(parent.prototype);                
                 F.prototype = _proto;
                 F.prototype.constructor = F;
                 // for later invoke
                 F.superClass = parent;
                 
             } else {
-            
-                F = function() { };
-                F.prototype = _proto;
-                F.prototype.constructor = F;
-                F.superClass = null;
-                
+                F.superClass = null;                
             }
             
-            extend( F, klass, true );
+            // add all the static properties and methods 
+            // extend and include method will be available
+            Object.extend(F,klass,true);
+            F.extend(inherits);
             
+            F.include({
+                // avoid non initialize method in the init's arguments
+                // default to invoke superClass's same method
+                initialize: function() { 
+                    if( this.constructor.superClass ){
+                        this.constructor.superClass.prototype.initialize.apply( this, arguments);
+                    }
+                },
+                uper: function(){
+                
+                    var func = arguments[0];
+                    var args = arguments.callee.caller.arguments.length > 1 ? 
+                                [].slice.apply(arguments.callee.caller.arguments,[1]) : 
+                                arguments.callee.caller.arguments;
+                    var funList = [];
+                    
+                    var constructor = this.constructor;
+                    while(constructor.superClass){
+                        var pro = constructor.superClass.prototype;
+                        if(!!pro[func]) {
+                            funList.push(pro[func]);
+                        }
+                        constructor = constructor.superClass;
+                    }
+                    
+                    for(var j=funList.length-1; j>=0; j--) {
+                        funList[j].apply( this, args );
+                    }
+                                    
+                }           
+            });            
+            
+            // all the fields and methods will be added to the prototype of current Class
             if(!!config)
                 F.include( config, true );
                                     
             return F;
         
-        },
-        init:function( config ) {
+        };
+        
+        var inherits = {
+            init:function( config ) {
             
-            var instance = new this();
-            
-            extend( instance, config, true );
-            
-            return instance;
-            
-        }             
-    };
-    
-    extend( klass, inherit );    
-    //extend( klass.prototype, inherit);
+                var instance = new this( config );            
+                return instance;            
+            }
+        };
+                   
     
     window.Class = klass;
-
-    return klass;
 
 })(window);
