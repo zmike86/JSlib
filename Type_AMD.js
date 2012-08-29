@@ -18,7 +18,7 @@
  *
  */
 
-define("sogo.Type", function() {
+define("sogo/Type", function() {
 
     var typeArray = ["Boolean", "Number", "String", "Function", "Array", "Date", "RegExp", "Object"];
     var classMap = { };

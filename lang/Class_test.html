@@ -12,7 +12,7 @@
                 var Animal = Class.create({
                     initialize:function(name){
                         this.name = name;
-                        this.fullname = "hello," + this.name;
+                        alert('in Animal: initialize');
                     },
                     eat:function(){
                         alert('person eat');
@@ -25,7 +25,7 @@
                 var Human = Class.create(Animal,{
                     initialize:function(name){
                         this.name = name;
-                        this.fullname = "hello," + this.name;
+                        alert('in Human: initialize');
                     },
                     eat:function(){
                         alert('person eat');
@@ -37,7 +37,7 @@
                 var People = Class.create(Human,{
                     initialize:function(name){
                         this.name = name;
-                        this.fullname = "hello," + this.name;
+                        alert('in People: initialize');
                     },
                     eat:function(){
                         alert('person eat');
@@ -50,28 +50,29 @@
                 var Student = Class.create(People,{
                     initialize:function(name){
                         this.name = name;
-                        this.fullname = "hello," + this.name;
-                    },                    
+                        alert('in Student: initialize');
+                    },
                     hoo:function(){
+                        this.base(arguments);
                         alert('student eat');
-                    },          
+                    },
                     sayname:function(){
-                        //debugger;
-                        this.uper("sayname");
+                        this.base(arguments);
                         alert('jichengla!');
                     }                                   
                 });
                 
                 
-                
+                //debugger;
                 var student = Student.init('ls');
                 //var student2 = Student.init('zs');
-                student.sayname();
+                 student.sayname();
+                // student.hoo();
 ////                
 ////                student2.eat();
 ////                student2.hoo();
 ////                student2.sayname();     
-        
+
         
     </script>
 </head>

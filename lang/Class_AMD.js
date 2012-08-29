@@ -12,7 +12,11 @@
  * Usage: var Panel = Class.create( null?, instanceConfigObject);
  *        var panel = Panel.init( configurationObject? );   
  *        var EditPanel = Class.create( Panel?, instanceConfigObject);
- *        var textEditor = EditPanel.init( configurationObject? );  
+ *        var textEditor = EditPanel.init( configurationObject? );
+ *        
+ *          It's very important that the constructor function of each class named initialize,
+ *          it's necessary in the instanceConfigObject.  
+ *  
  * 
  * Description: At present, it only suppports single inheritence, Just like Java and C#.
  *              You must deliver only one constructor function to the Class.create method as the first argument.
@@ -21,7 +25,7 @@
  *
  */
 
-define("sogo.lang.Class", [ "sogo.Type", "sogo.lang.Object" ], function( Type, Object ) {         
+define("sogo/lang/Class", [ "sogo/Type", "sogo/lang/Object" ], function( Type, Object ) {         
     
     var klass = { };
         
@@ -42,7 +46,18 @@ define("sogo.lang.Class", [ "sogo.Type", "sogo.lang.Object" ], function( Type, O
     klass.include = function( mixinObj, force ) {
         
         force = ( Type(force) == 'boolean' ? force : true );
-		Object.extend( this.prototype, mixinObj, force );
+
+        for( var n in mixinObj ) {       
+            if( n in this.prototype ) {
+                if( !force ) {
+                    continue;
+                } else {
+                    this.prototype[n] = mixinObj[n];
+                    this.prototype[n]["_base_name"] = n.toString();   
+                }
+            } else
+                this.prototype[n] = mixinObj[n];
+        }  
 		
 		// callbacks
 		if( mixinObj.included ) { 
@@ -71,12 +86,12 @@ define("sogo.lang.Class", [ "sogo.Type", "sogo.lang.Object" ], function( Type, O
     
         var F = function() {            
                 // instantiate invoke use the config object
+                this.base( "initialize", arguments );
                 this.initialize.apply( this, arguments );                              
             }, 
             _proto = {};
         
-        if(!!parent) {
-            
+        if(!!parent) {            
             // prototypal inheritence
             _proto = Object.create(parent.prototype);                
             F.prototype = _proto;
@@ -93,31 +108,43 @@ define("sogo.lang.Class", [ "sogo.Type", "sogo.lang.Object" ], function( Type, O
         Object.extend( F, klass, true );
         F.extend( inherits );
         
+        // avoid non initialize method in the init's arguments
+        // default to invoke superClass's same method
+        // but it's not necessary, because we must define a initialize method        
         F.include({
-            // avoid non initialize method in the init's arguments
-            // default to invoke superClass's same method
             initialize: function() { 
-                if( this.constructor.superClass ){
-                    this.constructor.superClass.prototype.initialize.apply( this, arguments);
-                }
+                
+                this.base( "initialize", arguments );
+                
             },
-            uper: function(){
+            base: function( method, args ){
             
-                var func = arguments[0];
-                
-                if(Type(func) == "null")
-                    return;
-                
-                var args = arguments.callee.caller.arguments.length > 1 ? 
-                            [].slice.apply(arguments.callee.caller.arguments,[1]) : 
-                            arguments.callee.caller.arguments;
-                var funList = [];
+                var func,
+                    i = dep = 0,
+                    funList = [];
+                if( Type(method) === "string" ) {
+                    ++i;
+                    func = method;
+                    args = arguments[i] ?  arguments[i] : [].slice.apply( arguments.callee.caller.arguments, [1] );
+                } else {               
+                    func = arguments.callee.caller["_base_name"];
+                    args = args ? args : [];
+                }           
                 
                 var constructor = this.constructor;
-                while(constructor.superClass){
+                if(!!func && (func !== "initialize") && constructor.superClass) {
+                    var pro = constructor.superClass.prototype;
+                    if(!!pro[func]) {                        
+                        funList.push(pro[func]);
+                        dep--;
+                    }
+                }
+ 
+                while(dep >= 0 && constructor.superClass){
                     var pro = constructor.superClass.prototype;
                     if(!!pro[func]) {
                         funList.push(pro[func]);
+                        dep++;
                     }
                     constructor = constructor.superClass;
                 }

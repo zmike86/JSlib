@@ -17,7 +17,7 @@
  */
 
 
-define("sogo.lang.Object", [ "sogo.Type" ], function( Type ) {
+define("sogo/lang/Object", [ "sogo/Type" ], function( Type ) {
 
     var O = { };
     
