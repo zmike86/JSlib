@@ -18,7 +18,7 @@
  *
  */
 
-define("sogo/Type", function() {
+define(function( require, exports, module ) {
 
     var typeArray = ["Boolean", "Number", "String", "Function", "Array", "Date", "RegExp", "Object"];
     var classMap = { };
@@ -54,6 +54,6 @@ define("sogo/Type", function() {
 		return !isNaN( parseFloat(obj) ) && isFinite( obj );
 	};
     
-    return T;
+    module.exports = T;
 
 });

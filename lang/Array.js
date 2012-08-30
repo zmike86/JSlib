@@ -17,11 +17,11 @@
  *
  */
 
-(function(){
+define(function( require, exports, module ) {  
 
+    var Type = require("../Type");
     // global hook
-    var root = this;
-    var _array = root._array = {     
+    var _array = {     
         // Keep the identity function around for default iterators.
         identity : function(value) {
             return value;
@@ -88,7 +88,7 @@
     var map = _array.map = function(obj, iterator, context) {
         var results = [];
         
-        if (obj == null) 
+        if (Type(obj) == "null") 
             return results;
             
         if (nativeMap && obj.map === nativeMap) 
@@ -113,7 +113,7 @@
         iterator || (iterator = _array.identity);
         var result = false;
         
-        if (obj == null) 
+        if (Type(obj) == "null") 
             return result;
         
         if (nativeSome && obj.some === nativeSome) 
@@ -148,7 +148,7 @@
     
         var results = [];
         
-        if (obj == null) 
+        if (Type(obj) == "null") 
             return results;
         
         if (nativeFilter && obj.filter === nativeFilter) 
@@ -169,7 +169,7 @@
     
         var result = true;
         
-        if (obj == null) 
+        if (Type(obj) == "null") 
             return result;
         
         if (nativeEvery && obj.every === nativeEvery) 
@@ -199,7 +199,7 @@
     };
     
     _array.indexOf = function(array, item) {
-        if (array == null) 
+        if (Type(obj) !== "array") 
             return -1;
         
         var i, l;
@@ -217,7 +217,7 @@
     // Delegates to **ECMAScript 5**'s native `lastIndexOf` if available.
     _array.lastIndexOf = function(array, item) {
         
-        if (array == null) 
+        if (Type(obj) !== "array") 
             return -1;
         
         if (nativeLastIndexOf && array.lastIndexOf === nativeLastIndexOf) 
@@ -235,7 +235,9 @@
     // Is a given value an array?
     // Delegates to ECMA5's native Array.isArray
     _array.isArray = nativeIsArray || function(obj) {
-        return toString.call(obj) == '[object Array]';
+        return Type(obj) == "array";
     };       
+    
+    module.exports =  _array;
   
-}).call(this);
+});

@@ -17,10 +17,11 @@
  *
  */
 
-define("sogo/lang/Array", [ "sogo/Type" ], function( Type ) {  
+(function(){
 
     // global hook
-    var _array = {     
+    var root = this;
+    var _array = root._array = {     
         // Keep the identity function around for default iterators.
         identity : function(value) {
             return value;
@@ -87,7 +88,7 @@ define("sogo/lang/Array", [ "sogo/Type" ], function( Type ) {
     var map = _array.map = function(obj, iterator, context) {
         var results = [];
         
-        if (Type(obj) == "null") 
+        if (obj == null) 
             return results;
             
         if (nativeMap && obj.map === nativeMap) 
@@ -112,7 +113,7 @@ define("sogo/lang/Array", [ "sogo/Type" ], function( Type ) {
         iterator || (iterator = _array.identity);
         var result = false;
         
-        if (Type(obj) == "null") 
+        if (obj == null) 
             return result;
         
         if (nativeSome && obj.some === nativeSome) 
@@ -147,7 +148,7 @@ define("sogo/lang/Array", [ "sogo/Type" ], function( Type ) {
     
         var results = [];
         
-        if (Type(obj) == "null") 
+        if (obj == null) 
             return results;
         
         if (nativeFilter && obj.filter === nativeFilter) 
@@ -168,7 +169,7 @@ define("sogo/lang/Array", [ "sogo/Type" ], function( Type ) {
     
         var result = true;
         
-        if (Type(obj) == "null") 
+        if (obj == null) 
             return result;
         
         if (nativeEvery && obj.every === nativeEvery) 
@@ -198,7 +199,7 @@ define("sogo/lang/Array", [ "sogo/Type" ], function( Type ) {
     };
     
     _array.indexOf = function(array, item) {
-        if (Type(obj) !== "array") 
+        if (array == null) 
             return -1;
         
         var i, l;
@@ -216,7 +217,7 @@ define("sogo/lang/Array", [ "sogo/Type" ], function( Type ) {
     // Delegates to **ECMAScript 5**'s native `lastIndexOf` if available.
     _array.lastIndexOf = function(array, item) {
         
-        if (Type(obj) !== "array") 
+        if (array == null) 
             return -1;
         
         if (nativeLastIndexOf && array.lastIndexOf === nativeLastIndexOf) 
@@ -234,9 +235,7 @@ define("sogo/lang/Array", [ "sogo/Type" ], function( Type ) {
     // Is a given value an array?
     // Delegates to ECMA5's native Array.isArray
     _array.isArray = nativeIsArray || function(obj) {
-        return Type(obj) == "array";
+        return toString.call(obj) == '[object Array]';
     };       
-    
-    return _array;
   
-});
+}).call(this);

@@ -9,14 +9,10 @@
  * Date: Fri Jul,20th
  * Copyright 2012
  *
- * Usage: var Panel = Class.create( null?, instanceConfigObject);
- *        var panel = Panel.init( configurationObject? );   
- *        var EditPanel = Class.create( Panel?, instanceConfigObject);
- *        var textEditor = EditPanel.init( configurationObject? );
- *        
- *          It's very important that the constructor function of each class named initialize,
- *          it's necessary in the instanceConfigObject.  
- *  
+ * Usage: var Panel = Class.create( *null, instanceConfigObject);
+ *        var panel = Panel.init( defaultPropertyObject );   
+ *        var EditPanel = Class.create( Panel, instanceConfigObject);
+ *        var textEditor = EditPanel.init( defaultPropertyObject );  
  * 
  * Description: At present, it only suppports single inheritence, Just like Java and C#.
  *              You must deliver only one constructor function to the Class.create method as the first argument.
@@ -25,14 +21,36 @@
  *
  */
 
-define("sogo/lang/Class", [ "sogo/Type", "sogo/lang/Object" ], function( Type, Object ) {         
+(function(window, undefined){
+ 
+     Object.create = function ( o ) {
+
+        function F() { }
+        F.prototype = o;
+        var f = new F();
+        
+        return f;
+    };  
+        
+    Object.extend = function( target, mixin, force ) {
+    
+        var force = !!force;
+    
+        for( var n in mixin ) {       
+            if( !!target[n] && !force )
+                continue;               
+            target[n] = mixin[n];     
+        }        
+    
+    };        
+        
     
     var klass = { };
         
     // extend class static properties or methods
     klass.extend = function( mixinObj, force ) {
 
-        force = ( Type(force) == 'boolean' ? force : true );
+        force = ( typeof force == 'boolean' ? force : true );
 		Object.extend( this, mixinObj, force );
 		
 		// callbacks
@@ -45,8 +63,8 @@ define("sogo/lang/Class", [ "sogo/Type", "sogo/lang/Object" ], function( Type, O
     // extend instancial properties or methods
     klass.include = function( mixinObj, force ) {
         
-        force = ( Type(force) == 'boolean' ? force : true );
-
+        force = ( typeof force == 'boolean' ? force : true );
+    
         for( var n in mixinObj ) {       
             if( n in this.prototype ) {
                 if( !force ) {
@@ -58,6 +76,7 @@ define("sogo/lang/Class", [ "sogo/Type", "sogo/lang/Object" ], function( Type, O
             } else
                 this.prototype[n] = mixinObj[n];
         }  
+
 		
 		// callbacks
 		if( mixinObj.included ) { 
@@ -74,11 +93,11 @@ define("sogo/lang/Class", [ "sogo/Type", "sogo/lang/Object" ], function( Type, O
         var parent, config;
         
         if( !!arguments[0] ){
-            if( Type.isFunction(arguments[0]) ) {
+            if( typeof arguments[0] == 'function' ) {
                 parent = arguments[0];
                 config = arguments[1];
             
-            } else if( Type(arguments[0]) == 'object' ) {
+            } else if( typeof arguments[0] == 'object' ) {
                 parent = null;
                 config = arguments[0];                    
             }    
@@ -86,12 +105,12 @@ define("sogo/lang/Class", [ "sogo/Type", "sogo/lang/Object" ], function( Type, O
     
         var F = function() {            
                 // instantiate invoke use the config object
-                this.base( "initialize", arguments );
+                this.base("initialize",arguments);
                 this.initialize.apply( this, arguments );                              
             }, 
             _proto = {};
         
-        if(!!parent) {            
+        if(!!parent) {
             // prototypal inheritence
             _proto = Object.create(parent.prototype);                
             F.prototype = _proto;
@@ -105,24 +124,23 @@ define("sogo/lang/Class", [ "sogo/Type", "sogo/lang/Object" ], function( Type, O
         
         // add all the static properties and methods 
         // extend and include method will be available
-        Object.extend( F, klass, true );
+        Object.extend( F, klass, true);
         F.extend( inherits );
-        
+
         // avoid non initialize method in the init's arguments
         // default to invoke superClass's same method
         // but it's not necessary, because we must define a initialize method        
         F.include({
             initialize: function() { 
                 
-                this.base( "initialize", arguments );
-                
+                this.base("initialize",arguments);
             },
             base: function( method, args ){
             
                 var func,
                     i = dep = 0,
                     funList = [];
-                if( Type(method) === "string" ) {
+                if( typeof method === "string" ) {
                     ++i;
                     func = method;
                     args = arguments[i] ?  arguments[i] : [].slice.apply( arguments.callee.caller.arguments, [1] );
@@ -163,15 +181,16 @@ define("sogo/lang/Class", [ "sogo/Type", "sogo/lang/Object" ], function( Type, O
         return F;
     
     };
-        
+    
     var inherits = {
-        init:function( config ) {           
+        init:function( config ) {
+        
             var instance = new this( config );            
             return instance;            
         }
     };
                    
     
-    return klass;
+    window.Class = klass;
 
-});
+})(window);
