@@ -1,10 +1,24 @@
 
+##########################################################
+#                                       __               #
+#    ____    ___     ___     ___       /\_\    ____      #
+#   / ,__\  / __`\  / _,`\  / __`\     \/\ \  /',__\     #
+#  /\__, `\/\ \_\ \/\ \_\ \/\ \_\ \ __  \ \ \/\__, `\    #
+#  \/\____/\ \____/\ \____ \ \____//\_\ _\ \ \/\____/    #
+#   \/___/  \/___/  \/___/\ \/___/ \/_//\ \_\ \/___/     #
+#                      __\ \ \         \ \____/          #
+#                     /\  \_\ \         \/___/           #
+#                     \ \_____/                          #
+#                      \,____/                           #
+#                                                        #
+##########################################################
+
 All the files in the JSlib folder I added is proposed to provide small and lightweight common module to our project.
 At present, all the varibles in the JS files attached to the window object ( which I think is not a good idea and 
 will be changed to a scoped object later, eg: sogo.lib.Class or after I commit my dynamic loader for js files, it would a AMD fitted
 JS library). It is just the beginning.
  
-
+ #
  # Author: Leo Zhang
  # Email: zmike86@126.com 
  #        zmike86@gmail.com
