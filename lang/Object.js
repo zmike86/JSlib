@@ -146,27 +146,21 @@ define(function( require, exports, module ) {
     };
  
     // Return the number of elements in an object.
-    O.size = function(obj){
-    
-        return O.keys(obj).length;
-        
+    O.size = function(obj){    
+        return O.keys(obj).length;        
     };
     
     
-	// 为jQuery添加静态方法和实例方法
-	// 非常有用的方法, 插件机制依赖于此
-	// arguments的用法体现了js中的方法重载功能
+	// determine whether clone an object in shadow model
     O.clone = function(source, deep) {
         var target = {};
-		var options, name, src, copy, copyIsArray, clone,
+		var name, copy, clone, copyIsObject,
 			source = arguments[0] || {},
-			i = 1,
-			length = arguments.length,
-			deep = false;
+			deepCopy = false;
 
 		// if it is a deep clone
 		if ( Type(deep) === "boolean" ) {
-			deep = deep;
+			deepCopy = deep;
 		}
 
 		// Handle case when target is a string or something (possible in deep copy)
@@ -174,32 +168,28 @@ define(function( require, exports, module ) {
 			throw new TypeError("invalid arguments..");
 		}
 
-		// Extend the base object
+		// clone the source object
 		for ( name in source ) {
 			copy = source[ name ];
 
 			// Prevent never-ending loop
-			if ( target === copy ) {
+			if ( target === copy || !copy) {
 				continue;
 			}
 
 			// two special types in js are object and array
 			// which can cause problem if shadow clone them.
-			if ( deep && copy && ( (Type(copy) == "object" ) || (copyIsArray = Type.isArray(copy) ) ) ) {
-				if ( copyIsArray ) {
-
-					copyIsArray = false;
-					clone = [];
-
+			if ( deepCopy && (Type.isArray(copy) || (copyIsObject = (Type(copy) === "object")))) {
+				if ( copyIsObject ) {
+					clone = {};				    
 				} else {
-					clone = {};
+				    // slice method is off the way, because it's a shaow...	
+				    clone = [];			    				    
 				}
-
 				// Never move original objects, clone them
-				target[ name ] = clone = this.clone( copy, deep );
-
+				target[ name ] = clone = this.clone( copy, deepCopy );
 			// other type of property
-			} else if ( Type(copy) !== "null" ) {
+			} else {
 				target[ name ] = copy;
 			}
 		}
